@@ -1,0 +1,72 @@
+CREATE TABLE Genre (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    url VARCHAR(255)
+);
+
+CREATE TABLE Author (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100),
+    family_name VARCHAR(100),
+    date_of_birth DATE,
+    date_of_death DATE,
+    name VARCHAR(255) NOT NULL,
+    lifespan VARCHAR(255),
+    url VARCHAR(255)
+);
+
+CREATE TABLE Book (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author_id INT,
+    summary TEXT,
+    ISBN VARCHAR(13), -- Assuming ISBN-13
+    url VARCHAR(255),
+    FOREIGN KEY (author_id) REFERENCES Author (id)
+);
+
+-- Junction table for the many-to-many relationship between Book and Genre
+CREATE TABLE Book_Genre (
+    book_id INT,
+    genre_id INT,
+    PRIMARY KEY (book_id, genre_id),
+    FOREIGN KEY (book_id) REFERENCES Book (id),
+    FOREIGN KEY (genre_id) REFERENCES Genre (id)
+);
+
+CREATE TABLE BookInstance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT,
+    imprint VARCHAR(255),
+    status ENUM('Available', 'Loaned', 'Maintenance', 'Reserved') NOT NULL,
+    due_back DATE,
+    url VARCHAR(255),
+    FOREIGN KEY (book_id) REFERENCES Book (id)
+);
+
+-- Inserting data into the Genre table
+INSERT INTO Genre (name, url) VALUES
+('Fiction', '/genres/fiction'),
+('Science Fiction', '/genres/science-fiction'),
+('Non-Fiction', '/genres/non-fiction');
+
+-- Inserting data into the Author table
+INSERT INTO Author (first_name, family_name, date_of_birth, date_of_death, name, lifespan, url) VALUES
+('Jane', 'Doe', '1980-05-01', NULL, 'Jane Doe', '1980-present', '/authors/jane-doe'),
+('John', 'Smith', '1970-07-21', NULL, 'John Smith', '1970-present', '/authors/john-smith');
+
+-- Inserting data into the Book table
+INSERT INTO Book (title, author_id, summary, ISBN, url) VALUES
+('The Great Adventure', (SELECT id FROM Author WHERE name = 'Jane Doe'), 'A thrilling journey across the world.', '978-3-16-148410-0', '/books/the-great-adventure'),
+('Journey to Mars', (SELECT id FROM Author WHERE name = 'John Smith'), 'Exploration of space travel to Mars.', '978-1-23-456789-7', '/books/journey-to-mars');
+
+-- Inserting data into the Book_Genre junction table
+INSERT INTO Book_Genre (book_id, genre_id) VALUES
+((SELECT id FROM Book WHERE title = 'The Great Adventure'), (SELECT id FROM Genre WHERE name = 'Fiction')),
+((SELECT id FROM Book WHERE title = 'Journey to Mars'), (SELECT id FROM Genre WHERE name = 'Science Fiction'));
+
+-- Inserting data into the BookInstance table
+INSERT INTO BookInstance (book_id, imprint, status, due_back, url) VALUES
+((SELECT id FROM Book WHERE title = 'The Great Adventure'), 'First Edition', 'Available', NULL, '/book-instances/1'),
+((SELECT id FROM Book WHERE title = 'Journey to Mars'), 'Second Edition', 'Loaned', '2023-12-20', '/book-instances/2');
+
