@@ -4,14 +4,20 @@ dotenv.config();
 
 const pool = mysql.createPool({
   host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT,
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
 });
 
 async function getAuthors() {
-  const [rows] = await pool.query("SELECT * FROM Author");
-  return rows;
+  try {
+    const [rows] = await pool.query("SELECT * FROM Author");
+    return rows;
+  } catch (error) {
+    console.error("Error fetching authors:", error);
+    throw error; // or handle the error as appropriate
+  }
 }
 
 // async function getNote(id) {
