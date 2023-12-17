@@ -4,6 +4,7 @@ const router = express.Router();
 const { getAuthors } = require("../database.js");
 
 router.get("/", async function (req, res) {
+  // res.send("HELLO");
   try {
     const authors = await getAuthors();
     res.send(authors);

@@ -11,27 +11,54 @@ const pool = mysql.createPool({
 });
 
 async function getAuthors() {
-  try {
-    const [rows] = await pool.query("SELECT * FROM Author");
-    return rows;
-  } catch (error) {
-    console.error("Error fetching authors:", error);
-    throw error; // or handle the error as appropriate
-  }
+  const [rows] = await pool.query("SELECT * FROM Author");
+  return rows;
 }
 
-// async function getNote(id) {
-//   const [rows] = await pool.query("SELECT * FROM notes WHERE id = ?", [id]);
-//   return rows[0];
-// }
+async function getBookCount() {
+  const [rows] = await pool.query("SELECT COUNT(*) AS count FROM Book");
+  return rows[0].count;
+}
 
-// async function createNote(title, contents) {
-//   const [result] = await pool.query(
-//     "INSERT INTO notes (title, contents) VALUES (?, ?)",
-//     [title, contents]
-//   );
-//   const id = result.insertId;
-//   return getNote(id);
-// }
+async function getBookInstanceCount() {
+  const [rows] = await pool.query("SELECT COUNT(*) AS count FROM BookInstance");
+  return rows[0].count;
+}
 
-module.exports = { getAuthors };
+async function getAvailableBookInstanceCount() {
+  const [rows] = await pool.query(
+    "SELECT COUNT(*) AS count FROM BookInstance WHERE status = 'Available'"
+  );
+  return rows[0].count;
+}
+
+async function getAuthorCount() {
+  const [rows] = await pool.query("SELECT COUNT(*) AS count FROM Author");
+  return rows[0].count;
+}
+
+async function getGenreCount() {
+  const [rows] = await pool.query("SELECT COUNT(*) AS count FROM Genre");
+  return rows[0].count;
+}
+
+// You can also create an aggregated function to fetch all counts at once
+async function getAggregatedCounts() {
+  return await Promise.all([
+    getBookCount(),
+    getBookInstanceCount(),
+    getAvailableBookInstanceCount(),
+    getAuthorCount(),
+    getGenreCount(),
+  ]);
+}
+
+module.exports = {
+  getAuthors,
+  getBookCount,
+  getBookInstanceCount,
+  getAvailableBookInstanceCount,
+  getAuthorCount,
+  getGenreCount,
+  getAggregatedCounts,
+};
