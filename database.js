@@ -108,6 +108,17 @@ async function getGenres() {
   }
 }
 
+async function getGenreDetail(id) {
+  // const [rows] = await pool.query("SELECT * FROM notes WHERE id = ?", [id]);
+// 
+  const query = `SELECT `
+  try {
+  } catch (error) {
+    console.log("getGenreDetail error:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getAuthors,
   getBookCount,
@@ -120,4 +131,5 @@ module.exports = {
   getAllBookInstances,
   getAuthors,
   getGenres,
+  getGenreDetail,
 };

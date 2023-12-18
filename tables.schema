@@ -46,9 +46,9 @@ CREATE TABLE BookInstance (
 
 -- Inserting data into the Genre table
 INSERT INTO Genre (name, url) VALUES
-('Fiction', '/genres/fiction'),
-('Science Fiction', '/genres/science-fiction'),
-('Non-Fiction', '/genres/non-fiction');
+('Fiction', '/genre/fiction'),
+('Science Fiction', '/genre/science-fiction'),
+('Non-Fiction', '/genre/non-fiction');
 
 -- Inserting data into the Author table
 INSERT INTO Author (first_name, family_name, date_of_birth, date_of_death, name, lifespan, url) VALUES

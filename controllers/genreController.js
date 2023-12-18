@@ -11,7 +11,9 @@ exports.genre_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for a specific Genre.
 exports.genre_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Genre detail: ${req.params.id}`);
+  console.log("genre_detail");
+  // res.send(`NOT IMPLEMENTED: Genre detail: ${req.params.id}`);
+  res.render("genre_detail", {title: "Genre Detail"});
 });
 
 // Display Genre create form on GET.
