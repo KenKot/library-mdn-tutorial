@@ -1,11 +1,21 @@
 // const BookInstance = require("../models/bookinstance");
 const asyncHandler = require("express-async-handler");
-const db = require("../database.js"); // path to you
+const { getAllBookInstances } = require("../database.js"); // path to you
+
+const { DateTime } = require("luxon");
 
 // Display list of all BookInstances.
 exports.bookinstance_list = asyncHandler(async (req, res, next) => {
   console.log(".bookinstance_list");
-  const allBookInstances = await db.getAllBookInstances();
+  // const allBookInstances = await db.getAllBookInstances();
+  const allBookInstances = await getAllBookInstances();
+  console.log("allBookInstances:", allBookInstances);
+  allBookInstances.forEach((bookInstance) => {
+    bookInstance.due_back_formatted = DateTime.fromJSDate(
+      bookInstance.due_back
+    ).toLocaleString(DateTime.DATE_MED);
+  });
+
   console.log("allBookInstances:", allBookInstances);
   res.render("bookinstance_list", {
     title: "Book Instance List",

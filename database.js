@@ -73,12 +73,37 @@ async function getAllBookInstances() {
   try {
     const query = `
       SELECT * FROM BookInstance
-      INNER JOIN BOOK ON Book.id = BookInstance.book_id;
+      INNER JOIN Book ON Book.id = BookInstance.book_id;
     `;
     const [books] = await pool.query(query);
     return books;
   } catch (error) {
     console.error("Error fetching books:", error);
+    throw error;
+  }
+}
+
+async function getAuthors() {
+  try {
+    const query = `
+      SELECT * FROM Author;
+    `;
+    const [authors] = await pool.query(query);
+    return authors;
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    throw error;
+  }
+}
+
+async function getGenres() {
+  try {
+    const query = `SELECT name, url FROM Genre ORDER BY name;`;
+    const [genres] = await pool.query(query);
+
+    return genres;
+  } catch (error) {
+    console.log("Error fetching genres:", error);
     throw error;
   }
 }
@@ -93,4 +118,6 @@ module.exports = {
   getAggregatedCounts,
   getAllBooks,
   getAllBookInstances,
+  getAuthors,
+  getGenres,
 };

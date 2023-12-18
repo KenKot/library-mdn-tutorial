@@ -1,9 +1,15 @@
 // const Author = require("../models/author");
 const asyncHandler = require("express-async-handler");
+const { getAuthors } = require("../database.js");
 
 // Display list of all Authors.
 exports.author_list = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Author list");
+  console.log(".author_list");
+
+  const allAuthors = await getAuthors();
+  console.log("allAuthors:", allAuthors);
+  // res.send(allAuthors);
+  res.render("author_list", { title: "Author List", author_list: allAuthors });
 });
 
 // Display detail page for a specific Author.

@@ -57,8 +57,8 @@ INSERT INTO Author (first_name, family_name, date_of_birth, date_of_death, name,
 
 -- Inserting data into the Book table
 INSERT INTO Book (title, author_id, summary, ISBN, url) VALUES
-('The Great Adventure', (SELECT id FROM Author WHERE name = 'Jane Doe'), 'A thrilling journey across the world.', '978-3-16-148410-0', '/books/the-great-adventure'),
-('Journey to Mars', (SELECT id FROM Author WHERE name = 'John Smith'), 'Exploration of space travel to Mars.', '978-1-23-456789-7', '/books/journey-to-mars');
+('The Great Adventure', (SELECT id FROM Author WHERE name = 'Jane Doe'), 'A thrilling journey across the world.', '978-3', '/books/the-great-adventure'),
+('Journey to Mars', (SELECT id FROM Author WHERE name = 'John Smith'), 'Exploration of space travel to Mars.', '978-1', '/books/journey-to-mars');
 
 -- Inserting data into the Book_Genre junction table
 INSERT INTO Book_Genre (book_id, genre_id) VALUES
