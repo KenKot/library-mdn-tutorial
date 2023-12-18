@@ -6,7 +6,7 @@ const pool = mysql.createPool({
   host: process.env.MYSQL_HOST,
   port: process.env.MYSQL_PORT,
   user: process.env.MYSQL_USER,
-  // password: process.env.MYSQL_PASSWORD,
+  password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
 });
 
@@ -53,6 +53,36 @@ async function getAggregatedCounts() {
   ]);
 }
 
+async function getAllBooks() {
+  try {
+    const query = `
+      SELECT Book.title, Author.name AS author_name, Book.url
+      FROM Book
+      INNER JOIN Author ON Book.author_id = Author.id
+      ORDER BY Book.title;
+    `;
+    const [books] = await pool.query(query);
+    return books;
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    throw error;
+  }
+}
+
+async function getAllBookInstances() {
+  try {
+    const query = `
+      SELECT * FROM BookInstance
+      INNER JOIN BOOK ON Book.id = BookInstance.book_id;
+    `;
+    const [books] = await pool.query(query);
+    return books;
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getAuthors,
   getBookCount,
@@ -61,4 +91,6 @@ module.exports = {
   getAuthorCount,
   getGenreCount,
   getAggregatedCounts,
+  getAllBooks,
+  getAllBookInstances,
 };

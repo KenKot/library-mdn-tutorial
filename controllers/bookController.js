@@ -4,27 +4,45 @@ const asyncHandler = require("express-async-handler");
 const db = require("../database.js"); // path to your database.js file
 
 exports.index = asyncHandler(async (req, res, next) => {
-  try {
-    const [
-      numBooks,
-      numBookInstances,
-      numAvailableBookInstances,
-      numAuthors,
-      numGenres,
-    ] = await db.getAggregatedCounts();
+  console.log(".index f(x)");
 
-    // Render the response with the counts
-    res.render("index", {
-      title: "Local Library Home",
-      book_count: numBooks,
-      book_instance_count: numBookInstances,
-      book_instance_available_count: numAvailableBookInstances,
-      author_count: numAuthors,
-      genre_count: numGenres,
-    });
-  } catch (error) {
-    next(error);
-  }
+  const [
+    numBooks,
+    numBookInstances,
+    numAvailableBookInstances,
+    numAuthors,
+    numGenres,
+  ] = await db.getAggregatedCounts();
+
+  res.render("index", {
+    title: "Local Library Home",
+    book_count: numBooks,
+    book_instance_count: numBookInstances,
+    book_instance_available_count: numAvailableBookInstances,
+    author_count: numAuthors,
+    genre_count: numGenres,
+  });
+  // try {
+  //   const [
+  //     numBooks,
+  //     numBookInstances,
+  //     numAvailableBookInstances,
+  //     numAuthors,
+  //     numGenres,
+  //   ] = await db.getAggregatedCounts();
+
+  //   // Render the response with the counts
+  //   res.render("index", {
+  //     title: "Local Library Home",
+  //     book_count: numBooks,
+  //     book_instance_count: numBookInstances,
+  //     book_instance_available_count: numAvailableBookInstances,
+  //     author_count: numAuthors,
+  //     genre_count: numGenres,
+  //   });
+  // } catch (error) {
+  //   next(error);
+  // }
 });
 
 // exports.index = asyncHandler(async (req, res, next) => {
@@ -34,7 +52,20 @@ exports.index = asyncHandler(async (req, res, next) => {
 
 // Display list of all books.
 exports.book_list = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Book list");
+  console.log(".book_list");
+
+  const allBooks = await db.getAllBooks();
+  console.log("allBooks:", allBooks);
+  res.render("book_list", { title: "Book List!", book_list: allBooks });
+
+  // try {
+  //   const allBooks = await db.getAllBooks();
+  //   console.log("allBooks:", allBooks);
+  //   res.render("book_list", { title: "Book List!", book_list: allBooks });
+  // } catch (error) {
+  //   // Handle the error
+  //   next(error);
+  // }
 });
 
 // Display detail page for a specific book.
