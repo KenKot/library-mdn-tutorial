@@ -12,8 +12,14 @@ const catalogRouter = require("./routes/catalog");
 const app = express();
 
 // view engine setup
-app.set("views", path.join(__dirname, "views"));
+// app.set("views", path.join(__dirname, "views"));
+// app.set("view engine", "ejs");
+
+// express layouts module:
+const expressLayouts = require("express-ejs-layouts");
+app.use(expressLayouts);
 app.set("view engine", "ejs");
+app.set("layout", "layout"); // This means it will use 'layout.ejs'
 
 //middlewar
 app.use(logger("dev"));
