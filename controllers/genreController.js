@@ -1,19 +1,35 @@
 // const Genre = require("../models/genre");
 const asyncHandler = require("express-async-handler");
 // const db = require("../database.js");
-const {getGenres} = require("../database.js");
+const { getGenres, getGenreDetail } = require("../database.js");
 
 // Display list of all Genre.
 exports.genre_list = asyncHandler(async (req, res, next) => {
   const genres = await getGenres();
-  res.render("genre_list", {title: "Genre List", genres});
+  console.log("genre_list", genres);
+  res.render("genre_list", { title: "Genre List", genres });
 });
 
 // Display detail page for a specific Genre.
 exports.genre_detail = asyncHandler(async (req, res, next) => {
-  console.log("genre_detail");
+  // console.log("genre_detail");
   // res.send(`NOT IMPLEMENTED: Genre detail: ${req.params.id}`);
-  res.render("genre_detail", {title: "Genre Detail"});
+  const genreDetail = await getGenreDetail(req.params.id);
+
+  if (!genreDetail || genreDetail.length === 0) {
+    // Handle the case where the genre is not found
+    const err = new Error("Genre not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  const genreTitle = genreDetail[0].genre_name;
+  console.log("genreDetail:", genreDetail);
+  res.render("genre_detail", {
+    title: "Genre Detail",
+    genreTitle,
+    genre_books: genreDetail,
+  });
 });
 
 // Display Genre create form on GET.

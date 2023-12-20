@@ -4,7 +4,7 @@
     <% genres.forEach(genre => { %> 
         <li>
             <!-- <a href=/catalog<%= genre.url %>> <%= genre.name %></a> -->
-            <a href=/catalog<%= genre.url %>> <%= genre.name %></a>
+            <a href=/catalog/genre/<%= genre.id %>> <%= genre.name %></a>
         </li>
     <% }); %> 
     </ul>

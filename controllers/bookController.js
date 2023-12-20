@@ -1,7 +1,12 @@
 // const Book = require("../models/book");
 const asyncHandler = require("express-async-handler");
 
-const db = require("../database.js"); // path to your database.js file
+const {
+  getBookDetail,
+  getAggregatedCounts,
+  getAllBooks,
+  getBookInstances,
+} = require("../database.js");
 
 exports.index = asyncHandler(async (req, res, next) => {
   console.log(".index f(x)");
@@ -12,7 +17,7 @@ exports.index = asyncHandler(async (req, res, next) => {
     numAvailableBookInstances,
     numAuthors,
     numGenres,
-  ] = await db.getAggregatedCounts();
+  ] = await getAggregatedCounts();
 
   res.render("index", {
     title: "Local Library Home",
@@ -22,27 +27,6 @@ exports.index = asyncHandler(async (req, res, next) => {
     author_count: numAuthors,
     genre_count: numGenres,
   });
-  // try {
-  //   const [
-  //     numBooks,
-  //     numBookInstances,
-  //     numAvailableBookInstances,
-  //     numAuthors,
-  //     numGenres,
-  //   ] = await db.getAggregatedCounts();
-
-  //   // Render the response with the counts
-  //   res.render("index", {
-  //     title: "Local Library Home",
-  //     book_count: numBooks,
-  //     book_instance_count: numBookInstances,
-  //     book_instance_available_count: numAvailableBookInstances,
-  //     author_count: numAuthors,
-  //     genre_count: numGenres,
-  //   });
-  // } catch (error) {
-  //   next(error);
-  // }
 });
 
 // exports.index = asyncHandler(async (req, res, next) => {
@@ -54,7 +38,7 @@ exports.index = asyncHandler(async (req, res, next) => {
 exports.book_list = asyncHandler(async (req, res, next) => {
   console.log(".book_list");
 
-  const allBooks = await db.getAllBooks();
+  const allBooks = await getAllBooks();
   console.log("allBooks:", allBooks);
   res.render("book_list", { title: "Book List!", book_list: allBooks });
 
@@ -70,7 +54,23 @@ exports.book_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for a specific book.
 exports.book_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Book detail: ${req.params.id}`);
+  // res.send(`NOT IMPLEMENTED: Book detail: ${req.params.id}`);
+  const [bookDetail] = await getBookDetail(req.params.id);
+  const bookInstances = await getBookInstances(req.params.id);
+
+  if (!bookDetail) {
+    const err = new Error("Book not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  console.log("bookDetail: ", bookDetail);
+  console.log("bookInstances: ", bookInstances);
+  res.render("book_detail", {
+    title: "Book Detail!",
+    bookDetail,
+    bookInstances,
+  });
 });
 
 // Display book create form on GET.

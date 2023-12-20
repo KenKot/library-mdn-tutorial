@@ -1,0 +1,32 @@
+<div>
+    <h1>Title: <%= bookDetail.title %></h1>
+    <p><strong>Author: </strong>
+      <a href="/authors/<%= bookDetail.author_id %>"><%= bookDetail.name %></a>
+      (<%= bookDetail.lifespan %>)
+    </p>
+    <p><strong>Summary:</strong> <%= bookDetail.summary %></p>
+    <p><strong>ISBN:</strong> <%= bookDetail.ISBN %></p>
+  
+    <div style="margin-left:20px;margin-top:20px">
+      <h4>Copy Details</h4>
+      <hr>
+      <% bookInstances.forEach(function(instance) { %>
+        <% if (instance.status === 'Available') { %>
+          <p class="text-success"><%= instance.status %></p>
+        <% } else if (instance.status === 'Maintenance') { %>
+          <p class="text-danger"><%= instance.status %></p>
+        <% } else { %>
+          <p class="text-warning"><%= instance.status %></p>
+        <% } %>
+        <p><strong>Imprint:</strong> <%= instance.imprint %></p>
+        <% if (instance.status !== 'Available') { %>
+          <p><strong>Due back:</strong> <%= instance.due_back ? instance.due_back.toDateString() : 'N/A' %></p>
+        <% } %>
+        <p><strong>Book Instance ID: </strong>
+          <a href="<%= instance.url %>"><%= instance.id %></a>
+        </p>
+        <hr>
+      <% }) %>
+    </div>
+  </div>
+  

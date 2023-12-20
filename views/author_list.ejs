@@ -5,7 +5,7 @@
     <% if (author_list && author_list.length) { author_list.forEach(author => {
     %>
     <li>
-      <a href="<%= author.url %>"><%= author.name %></a>
+      <a href="author/<%= author.id %>"><%= author.name %></a>
       <% if (author.date_of_birth) { %> (<%= formatDate(author.date_of_birth) %>
       - <%= author.date_of_death ? formatDate(author.date_of_death) : 'Present'
       %>) <% } %>

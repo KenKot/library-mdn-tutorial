@@ -1,6 +1,9 @@
 // const BookInstance = require("../models/bookinstance");
 const asyncHandler = require("express-async-handler");
-const { getAllBookInstances } = require("../database.js"); // path to you
+const {
+  getAllBookInstances,
+  getBookinstanceDetail,
+} = require("../database.js"); // path to you
 
 const { DateTime } = require("luxon");
 
@@ -25,7 +28,15 @@ exports.bookinstance_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for a specific BookInstance.
 exports.bookinstance_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: BookInstance detail: ${req.params.id}`);
+  console.log("bookinstance_detail");
+
+  const [bookinstance] = await getBookinstanceDetail(req.params.id);
+  console.log("instanceDetails", bookinstance);
+
+  res.render("bookinstance_detail", {
+    title: "bookinstance_detail",
+    bookinstance,
+  });
 });
 
 // Display BookInstance create form on GET.

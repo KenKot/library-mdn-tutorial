@@ -70,3 +70,7 @@ INSERT INTO BookInstance (book_id, imprint, status, due_back, url) VALUES
 ((SELECT id FROM Book WHERE title = 'The Great Adventure'), 'First Edition', 'Available', NULL, '/book-instances/1'),
 ((SELECT id FROM Book WHERE title = 'Journey to Mars'), 'Second Edition', 'Loaned', '2023-12-20', '/book-instances/2');
 
+
+
+INSERT INTO Book (title, author_id, summary, ISBN, url) VALUES
+('The Great Adventure II', (SELECT id FROM Author WHERE name = 'Jane Doe'), 'A thrilling journey across the world part 2.', '978-4', '/books/the-great-adventure2')

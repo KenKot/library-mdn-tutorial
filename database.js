@@ -56,7 +56,7 @@ async function getAggregatedCounts() {
 async function getAllBooks() {
   try {
     const query = `
-      SELECT Book.title, Author.name AS author_name, Book.url
+      SELECT Book.title, Author.name AS author_name, Book.url, Book.id
       FROM Book
       INNER JOIN Author ON Book.author_id = Author.id
       ORDER BY Book.title;
@@ -71,9 +71,19 @@ async function getAllBooks() {
 
 async function getAllBookInstances() {
   try {
+    // const query = `
+    //   SELECT * FROM BookInstance
+    //   INNER JOIN Book ON Book.id = BookInstance.book_id
+    //   INNER JOIN Author ON Author.id = Book.author_id;
+    // `;
+
     const query = `
-      SELECT * FROM BookInstance
-      INNER JOIN Book ON Book.id = BookInstance.book_id;
+    SELECT BookInstance.id, BookInstance.url, Book.title, 
+    BookInstance.status, BookInstance.imprint, 
+    BookInstance.status, BookInstance.due_back 
+    FROM BookInstance INNER JOIN Book ON Book.id = BookInstance.book_id 
+    INNER JOIN Author ON Author.id = Book.author_id;
+
     `;
     const [books] = await pool.query(query);
     return books;
@@ -98,7 +108,7 @@ async function getAuthors() {
 
 async function getGenres() {
   try {
-    const query = `SELECT name, url FROM Genre ORDER BY name;`;
+    const query = `SELECT name, url, id FROM Genre ORDER BY name;`;
     const [genres] = await pool.query(query);
 
     return genres;
@@ -109,12 +119,123 @@ async function getGenres() {
 }
 
 async function getGenreDetail(id) {
-  // const [rows] = await pool.query("SELECT * FROM notes WHERE id = ?", [id]);
-// 
-  const query = `SELECT `
   try {
+    const query = `
+      SELECT 
+        g.id AS genre_id,
+        g.name AS genre_name,
+        g.url AS genre_url,
+        b.id AS book_id,
+        b.title AS book_title,
+        b.summary AS book_summary
+      FROM 
+        Genre g
+      LEFT JOIN 
+        Book_Genre bg ON g.id = bg.genre_id
+      LEFT JOIN 
+        Book b ON bg.book_id = b.id
+      WHERE 
+        g.id = ?;
+    `;
+    const [genreDetail] = await pool.query(query, [id]);
+    return genreDetail;
   } catch (error) {
     console.log("getGenreDetail error:", error);
+    throw error;
+  }
+}
+
+async function getBookDetail(bookId) {
+  try {
+    const bookDetailQuery = `
+    SELECT 
+    b.id, b.title, b.summary, b.ISBN, b.url,
+    a.id AS author_id, a.first_name, a.family_name, a.name AS author_name, a.lifespan, a.url AS author_url,
+    g.name AS genre_name
+    FROM 
+    Book b
+    INNER JOIN 
+    Author a ON b.author_id = a.id
+    LEFT JOIN 
+    Book_Genre bg ON b.id = bg.book_id
+    LEFT JOIN 
+    Genre g ON bg.genre_id = g.id
+    WHERE 
+    b.id = ?;
+  
+    `;
+
+    const [bookDetail] = await pool.query(bookDetailQuery, [bookId]);
+
+    return bookDetail;
+  } catch (error) {
+    console.log("getBookDetail error: ", error);
+    throw error;
+  }
+}
+
+async function getBookInstances(bookId) {
+  try {
+    const bookInstancesQuery = `
+      SELECT bi.imprint, bi.status, bi.due_back, bi.id
+      FROM BookInstance bi
+      WHERE bi.book_id = ?
+    `;
+
+    const [bookInstances] = await pool.query(bookInstancesQuery, [bookId]);
+
+    return bookInstances;
+  } catch (error) {
+    console.log("getBookDetail error: ", error);
+    throw error;
+  }
+}
+
+async function getAuthorDetail(authorId) {
+  try {
+    const query = `
+    SELECT * FROM Author a
+    WHERE id = ?;
+    `;
+
+    const [authorDetail] = await pool.query(query, [authorId]);
+    return authorDetail;
+  } catch (error) {
+    console.log("getAuthorDetail error :", error);
+    throw error;
+  }
+}
+
+async function getAuthorBooks(authorId) {
+  try {
+    const query = `
+    SELECT * 
+    FROM Book b
+    WHERE author_id = ?;
+    `;
+
+    const [authorBooks] = await pool.query(query, [authorId]);
+    return authorBooks;
+  } catch (error) {
+    console.log("getAuthorBooks error :", error);
+    throw error;
+  }
+}
+
+async function getBookinstanceDetail(instanceId) {
+  try {
+    const query = `
+    SELECT b.id AS book_id, b.title, bi.imprint, bi.status, bi.due_back, bi.id 
+    FROM BookInstance bi
+    INNER JOIN Book b
+    ON bi.book_id = b.id
+    WHERE bi.id = ?;
+    `;
+
+    const [instanceDetail] = await pool.query(query, [instanceId]);
+    return instanceDetail;
+  } catch (error) {
+    console.log("getBookinstanceDetail errored: ", error);
     throw error;
   }
 }
@@ -132,4 +253,9 @@ module.exports = {
   getAuthors,
   getGenres,
   getGenreDetail,
+  getBookDetail,
+  getBookInstances,
+  getAuthorDetail,
+  getAuthorBooks,
+  getBookinstanceDetail,
 };
