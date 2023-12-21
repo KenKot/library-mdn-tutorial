@@ -240,6 +240,60 @@ async function getBookinstanceDetail(instanceId) {
   }
 }
 
+async function getGenre(name) {
+  try {
+    const query = `SELECT * FROM Genre WHERE name = ?`;
+    const [genres] = await pool.query(query, [name]);
+    return genres.length > 0 ? genres[0] : null;
+  } catch (error) {
+    console.error("getGenre error:", error);
+    throw error;
+  }
+}
+
+async function createGenre(name) {
+  try {
+    const genreUrl = `/genre/${encodeURIComponent(name)}`;
+    const insertQuery = `INSERT INTO Genre (name, url) VALUES (?, ?)`;
+
+    const [insertResult] = await pool.query(insertQuery, [name, genreUrl]);
+
+    return insertResult.insertId;
+  } catch (error) {
+    console.error("createGenre error:", error);
+    throw error;
+  }
+}
+
+async function createAuthor(authorObj) {
+  try {
+    const name = authorObj.first_name + authorObj.last_name,
+      lifespan = `111-present`,
+      url = `/authors/${authorObj.first_name}-${authorObj.last_name}`;
+    const query = `
+    INSERT INTO 
+    Author(first_name, last_name, date_of_birth, date_of_death, name, lifespan, url)
+    VALUES (?, ?, ?, ?, ?, ?, ?) `;
+
+    const params = [
+      authorObj.first_name,
+      authorObj.last_name,
+      authorObj.date_of_birth,
+      null, // authorObj.date_of_death,
+      name,
+      lifespan,
+      url,
+    ];
+
+    const [newAuthor] = await pool.query(query, params);
+
+    return newAuthor.insertId;
+  } catch (error) {
+    console.log("authorObj", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getAuthors,
   getBookCount,
@@ -258,4 +312,7 @@ module.exports = {
   getAuthorDetail,
   getAuthorBooks,
   getBookinstanceDetail,
+  getGenre,
+  createGenre,
+  createAuthor,
 };

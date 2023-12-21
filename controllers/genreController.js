@@ -1,7 +1,13 @@
 // const Genre = require("../models/genre");
+
 const asyncHandler = require("express-async-handler");
-// const db = require("../database.js");
-const { getGenres, getGenreDetail } = require("../database.js");
+const {
+  getGenres,
+  getGenreDetail,
+  getGenre,
+  createGenre,
+} = require("../database.js");
+const { body, validationResult } = require("express-validator");
 
 // Display list of all Genre.
 exports.genre_list = asyncHandler(async (req, res, next) => {
@@ -33,14 +39,56 @@ exports.genre_detail = asyncHandler(async (req, res, next) => {
 });
 
 // Display Genre create form on GET.
-exports.genre_create_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Genre create GET");
-});
+exports.genre_create_get = (req, res, next) => {
+  console.log("genre_create_get");
+  res.render("genre_form", {
+    title: "Create Genre",
+    genre: { name: "" }, // Provide an empty genre object
+    errors: [], // Provide an empty errors array
+  });
+};
 
 // Handle Genre create on POST.
-exports.genre_create_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Genre create POST");
-});
+exports.genre_create_post = [
+  // Validate and sanitize...
+  body("name", "Genre name must contain at least 3 characters")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+
+  // Process request after validation and sanitization.
+  asyncHandler(async (req, res, next) => {
+    // Extract validation errors...
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      // Render the form again with errors...
+      res.render("genre_form", {
+        title: "Create Genre",
+        genre: { name: req.body.name },
+        errors: errors.array(),
+      });
+    } else {
+      // Check if Genre exists...
+      const genreExists = await getGenre(req.body.name);
+
+      if (genreExists) {
+        const url = `/catalog/genre/${genreExists.id}`;
+
+        // Genre exists, redirect...
+        res.redirect(url);
+      } else {
+        // Data from form is valid, create new genre...
+        const newGenreId = await createGenre(req.body.name);
+        const url = `/catalog/genre/${newGenreId}`;
+
+        // Redirect to new genre's detail page...
+        // res.redirect(newGenre.url); // Ensure newGenre.url is available
+        res.redirect(url);
+      }
+    }
+  }),
+];
 
 // Display Genre delete form on GET.
 exports.genre_delete_get = asyncHandler(async (req, res, next) => {

@@ -23,7 +23,7 @@
           <p><strong>Due back:</strong> <%= instance.due_back ? instance.due_back.toDateString() : 'N/A' %></p>
         <% } %>
         <p><strong>Book Instance ID: </strong>
-          <a href="<%= instance.url %>"><%= instance.id %></a>
+          <a href="/catalog/bookinstance/<%= instance.id %>"><%= instance.id %></a>
         </p>
         <hr>
       <% }) %>
