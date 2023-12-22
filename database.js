@@ -325,6 +325,31 @@ async function createNewBook(bookParams) {
   }
 }
 
+async function createBookInstance(instanceParams) {
+  try {
+    const query = `
+      INSERT INTO BookInstance(book_id, imprint, status, due_back, url)
+      VALUES(?, ?, ?, ?, null)
+      `;
+    const url = `/book-instances/${instanceParams.book}}`;
+
+    const newInstanceParams = [
+      instanceParams.book,
+      instanceParams.imprint,
+      instanceParams.status,
+      instanceParams.due_back,
+      url,
+    ];
+
+    const [newInstanceId] = await pool.query(query, newInstanceParams);
+    // console.log("new instance id form DB", newInstanceId.insertId);
+    return newInstanceId.insertId;
+  } catch (error) {
+    console.log("create book instance error", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getAuthors,
   getBookCount,
@@ -347,4 +372,5 @@ module.exports = {
   createGenre,
   createAuthor,
   createNewBook,
+  createBookInstance,
 };

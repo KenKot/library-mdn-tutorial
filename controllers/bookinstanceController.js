@@ -3,9 +3,13 @@ const asyncHandler = require("express-async-handler");
 const {
   getAllBookInstances,
   getBookinstanceDetail,
+  getAllBooks,
+  createBookInstance,
 } = require("../database.js"); // path to you
 
-const { DateTime } = require("luxon");
+const {body, validationResult} = require("express-validator");
+
+const {DateTime} = require("luxon");
 
 // Display list of all BookInstances.
 exports.bookinstance_list = asyncHandler(async (req, res, next) => {
@@ -40,14 +44,69 @@ exports.bookinstance_detail = asyncHandler(async (req, res, next) => {
 });
 
 // Display BookInstance create form on GET.
+// Display BookInstance create form on GET.
 exports.bookinstance_create_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: BookInstance create GET");
+  const allBooks = await getAllBooks();
+
+  console.log("allBooks:", allBooks);
+
+  res.render("bookinstance_form", {
+    title: "Create Book Instance",
+    book_list: allBooks, // Pass the array of book objects
+    bookinstance: {}, // Empty object for the form to fill out
+    selected_book: {},
+    errors: [], // Initialize errors as an empty array
+  });
 });
 
 // Handle BookInstance create on POST.
-exports.bookinstance_create_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: BookInstance create POST");
-});
+exports.bookinstance_create_post = [
+  // Validate and sanitize fields.
+  body("book", "Book must be specified").trim().isLength({min: 1}).escape(),
+  body("imprint", "Imprint must be specified")
+    .trim()
+    .isLength({min: 1})
+    .escape(),
+  body("status").escape(),
+  body("due_back", "Invalid date")
+    .optional({values: "true"})
+    .isISO8601()
+    .toDate(),
+
+  // Process request after validation and sanitization.
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req);
+
+    // Create a BookInstance object with escaped and trimmed data.
+    const bookInstance = {
+      book: req.body.book,
+      imprint: req.body.imprint,
+      status: req.body.status,
+      due_back: req.body.due_back,
+    };
+
+    if (!errors.isEmpty()) {
+      // There are errors.
+      // Render form again with sanitized values and error messages.
+      const allBooks = await getAllBooks();
+
+      res.render("bookinstance_form", {
+        title: "Create BookInstance",
+        book_list: allBooks,
+        selected_book: bookInstance.book_id,
+        errors: errors.array(),
+        bookinstance: bookInstance,
+      });
+      return;
+    } else {
+      // Data from form is valid
+      const newInstanceId = await createBookInstance(bookInstance);
+      // console.log("newInstanceId from controller", newInstanceId);
+      res.redirect(`/catalog/bookinstance/${newInstanceId}`);
+    }
+  }),
+];
 
 // Display BookInstance delete form on GET.
 exports.bookinstance_delete_get = asyncHandler(async (req, res, next) => {
