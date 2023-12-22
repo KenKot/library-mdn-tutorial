@@ -267,29 +267,60 @@ async function createGenre(name) {
 
 async function createAuthor(authorObj) {
   try {
-    const name = authorObj.first_name + authorObj.last_name,
-      lifespan = `111-present`,
-      url = `/authors/${authorObj.first_name}-${authorObj.last_name}`;
+    const name = authorObj.first_name + " " + authorObj.family_name;
+    const birthYear = new Date(authorObj.date_of_birth).getFullYear();
+    const lifespan = `${birthYear || "Unknown"}-present`;
+    const url = `/authors/${encodeURIComponent(
+      authorObj.first_name
+    )}-${encodeURIComponent(authorObj.family_name)}`;
+
     const query = `
-    INSERT INTO 
-    Author(first_name, last_name, date_of_birth, date_of_death, name, lifespan, url)
-    VALUES (?, ?, ?, ?, ?, ?, ?) `;
+      INSERT INTO Author(first_name, family_name, date_of_birth, date_of_death, name, lifespan, url)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
     const params = [
       authorObj.first_name,
-      authorObj.last_name,
+      authorObj.family_name,
       authorObj.date_of_birth,
-      null, // authorObj.date_of_death,
+      authorObj.date_of_death || null,
       name,
       lifespan,
       url,
     ];
 
     const [newAuthor] = await pool.query(query, params);
-
+    console.log("newAuthor insert id:", newAuthor.insertId);
+    console.log("newAuthor insert id:", newAuthor);
     return newAuthor.insertId;
   } catch (error) {
-    console.log("authorObj", error);
+    console.error("Error inserting author:", error);
+    throw error;
+  }
+}
+
+async function createNewBook(bookParams) {
+  console.log("DB params:");
+  try {
+    const url = `/books/${encodeURIComponent(bookParams.title)}`;
+    const newBookQuery = `INSERT INTO Book(title, author_id, summary, ISBN, url) VALUES(?, ?, ?, ?, ?)`;
+
+    const newBookParams = [
+      bookParams.title,
+      bookParams.author_id,
+      bookParams.summary,
+      bookParams.isbn,
+      url,
+    ];
+
+    bookParams.url = url;
+    const [newBook] = await pool.query(newBookQuery, newBookParams);
+    const newBookId = newBook.insertId;
+
+    const updateBookGenreTableQuery = `INSERT INTO Book_Genre(book_id, genre_id) VALUES(?, ?)`;
+    pool.query(updateBookGenreTableQuery, [newBookId, bookParams.genre]);
+    return newBookId;
+  } catch (error) {
+    console.log("create new book error", error);
     throw error;
   }
 }
@@ -315,4 +346,5 @@ module.exports = {
   getGenre,
   createGenre,
   createAuthor,
+  createNewBook,
 };

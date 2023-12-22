@@ -1,7 +1,8 @@
 <div>
     <h1>Title: <%= bookDetail.title %></h1>
-    <p><strong>Author: </strong>
-      <a href="/authors/<%= bookDetail.author_id %>"><%= bookDetail.name %></a>
+    <p><strong>Authorr: </strong>
+      <a href="/authors/<%= bookDetail.author_name %>"><%= bookDetail.name %></a>
+      <%= bookDetail.author_name %>
       (<%= bookDetail.lifespan %>)
     </p>
     <p><strong>Summary:</strong> <%= bookDetail.summary %></p>

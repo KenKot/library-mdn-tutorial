@@ -7,7 +7,7 @@ const {
   createAuthor,
 } = require("../database.js");
 
-const { body, validationResult } = require("express-validator");
+const {body, validationResult} = require("express-validator");
 
 // Display list of all Authors.
 exports.author_list = asyncHandler(async (req, res, next) => {
@@ -16,7 +16,7 @@ exports.author_list = asyncHandler(async (req, res, next) => {
   const allAuthors = await getAuthors();
   console.log("allAuthors:", allAuthors);
   // res.send(allAuthors);
-  res.render("author_list", { title: "Author List", author_list: allAuthors });
+  res.render("author_list", {title: "Author List", author_list: allAuthors});
 });
 
 // Display detail page for a specific Author.
@@ -35,7 +35,7 @@ exports.author_detail = asyncHandler(async (req, res, next) => {
     return next(err);
   }
 
-  res.render("author_detail", { authorDetail, authorBooks });
+  res.render("author_detail", {authorDetail, authorBooks});
 });
 
 // Display Author create form on GET.
@@ -51,24 +51,24 @@ exports.author_create_post = [
   // Validation and sanitization...
   body("first_name")
     .trim()
-    .isLength({ min: 1 })
+    .isLength({min: 1})
     .escape()
     .withMessage("First name must be specified.")
     .isAlphanumeric()
     .withMessage("First name has non-alphanumeric characters."),
   body("family_name")
     .trim()
-    .isLength({ min: 1 })
+    .isLength({min: 1})
     .escape()
     .withMessage("Family name must be specified.")
     .isAlphanumeric()
     .withMessage("Family name has non-alphanumeric characters."),
   body("date_of_birth", "Invalid date of birth")
-    .optional({ values: "falsy" })
+    .optional({values: "falsy"})
     .isISO8601()
     .toDate(),
   body("date_of_death", "Invalid date of death")
-    .optional({ values: "falsy" })
+    .optional({values: "falsy"})
     .isISO8601()
     .toDate(),
 
@@ -85,81 +85,17 @@ exports.author_create_post = [
       return;
     } else {
       // Data from form is valid.
-      try {
-        // Save author using your SQL function.
-        const newAuthorId = await createAuthor({
-          first_name: req.body.first_name,
-          last_name: req.body.family_name, // Ensure this matches your SQL table's column
-          date_of_birth: req.body.date_of_birth || null,
-          date_of_death: req.body.date_of_death || null,
-          // Add any other fields your createAuthor function expects
-        });
-
-        // Redirect to the new author's page.
-        // You'll need to define how to construct the URL for the author's detail page.
-        res.redirect(`/catalog/authors/${newAuthorId}`); // Modify as needed based on your URL structure
-      } catch (error) {
-        // Handle errors from the createAuthor function
-        next(error);
-      }
-    }
-  }),
-];
-
-// Handle Author create on POST.
-exports.author_create_post = [
-  // Validate and sanitize fields.
-  body("first_name")
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage("First name must be specified.")
-    .isAlphanumeric()
-    .withMessage("First name has non-alphanumeric characters."),
-  body("family_name")
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage("Family name must be specified.")
-    .isAlphanumeric()
-    .withMessage("Family name has non-alphanumeric characters."),
-  body("date_of_birth", "Invalid date of birth")
-    .optional({ values: "falsy" })
-    .isISO8601()
-    .toDate(),
-  body("date_of_death", "Invalid date of death")
-    .optional({ values: "falsy" })
-    .isISO8601()
-    .toDate(),
-
-  // Process request after validation and sanitization.
-  asyncHandler(async (req, res, next) => {
-    // Extract the validation errors from a request.
-    const errors = validationResult(req);
-
-    // Create Author object with escaped and trimmed data
-    // const author = new Author({
-    //   first_name: req.body.first_name,
-    //   family_name: req.body.family_name,
-    //   date_of_birth: req.body.date_of_birth,
-    //   date_of_death: req.body.date_of_death,
-    // });
-
-    if (!errors.isEmpty()) {
-      // There are errors. Render form again with sanitized values/errors messages.
-      res.render("author_form", {
-        title: "Create Author",
-        author: author,
-        errors: errors.array(),
+      // Save author using your SQL function.
+      const newAuthorId = await createAuthor({
+        first_name: req.body.first_name,
+        family_name: req.body.family_name, // Ensure this matches your SQL table's column
+        date_of_birth: req.body.date_of_birth || null,
+        date_of_death: req.body.date_of_death || null,
+        // Add any other fields your createAuthor function expects
       });
-      return;
-    } else {
-      // Data from form is valid.
 
-      // Save author.
-      await author.save();
-      // Redirect to new author record.
-      res.redirect(author.url);
+
+      res.redirect(`/catalog/author/${newAuthorId}`); // Modify as needed based on your URL structure
     }
   }),
 ];
