@@ -7,7 +7,7 @@
     <dl>
       <% genre_books.forEach(function(book) { %>
         <dt>
-          <a href="<%= book.genre_url %>"><%= book.book_title %></a>
+          <a href="/catalog/book/<%= book.book_id %>"><%= book.book_title %></a>
         </dt>
         <dd><%= book.book_summary %></dd>
       <% }); %>

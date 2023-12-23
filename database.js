@@ -362,6 +362,57 @@ async function deleteAuthorById(authorId) {
   }
 }
 
+async function updateBookById(bookParams) {
+  try {
+    const updateBookQuery = `
+    UPDATE Book
+    SET title = ?,
+        author_id = ?,
+        summary = ?,
+        isbn = ?,
+        url = ?
+    WHERE id = ?;
+  `;
+
+    const url = `/books/${encodeURIComponent(bookParams.title)}`;
+
+    const updatedBookParams = [
+      bookParams.title,
+      bookParams.author,
+      bookParams.summary,
+      bookParams.isbn,
+      url,
+      bookParams.id,
+    ];
+
+    await pool.query(updateBookQuery, updatedBookParams);
+
+    if (bookParams.genre.length) {
+      //delete genres first
+      const deleteGenresQuery = `DELETE FROM Book_Genre WHERE book_id = ?`;
+      await pool.query(deleteGenresQuery, [bookParams.id]);
+
+      //add genres
+      const addGenreQuery = `INSERT INTO Book_Genre(book_id, genre_id) VALUES(?, ?)`;
+      for (const genreId of bookParams.genre) {
+        await pool.query(addGenreQuery, [bookParams.id, genreId]);
+      }
+    }
+  } catch (error) {
+    console.log("updateBookById: ", error);
+    throw error;
+  }
+}
+
+// *********** {
+//   title: 'my new book tooo edited',
+//   author: '5',
+//   summary: 'you know it edited',
+//   isbn: 'edit',
+//   genre: [ '4' ],
+//   id: '4'
+// } ***********
+
 module.exports = {
   getAuthors,
   getBookCount,
@@ -386,4 +437,5 @@ module.exports = {
   createNewBook,
   createBookInstance,
   deleteAuthorById,
+  updateBookById,
 };
