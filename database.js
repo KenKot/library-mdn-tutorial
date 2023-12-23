@@ -350,6 +350,18 @@ async function createBookInstance(instanceParams) {
   }
 }
 
+async function deleteAuthorById(authorId) {
+  try {
+    const query = "DELETE from Author WHERE id = ?";
+
+    const a1 = await pool.query(query, [authorId]);
+    console.log("a1", a1);
+  } catch (error) {
+    console.log("deleteAuthorById: ", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getAuthors,
   getBookCount,
@@ -373,4 +385,5 @@ module.exports = {
   createAuthor,
   createNewBook,
   createBookInstance,
+  deleteAuthorById,
 };

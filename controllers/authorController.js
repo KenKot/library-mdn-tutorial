@@ -5,6 +5,7 @@ const {
   getAuthorDetail,
   getAuthorBooks,
   createAuthor,
+  deleteAuthorById,
 } = require("../database.js");
 
 const {body, validationResult} = require("express-validator");
@@ -94,20 +95,51 @@ exports.author_create_post = [
         // Add any other fields your createAuthor function expects
       });
 
-
       res.redirect(`/catalog/author/${newAuthorId}`); // Modify as needed based on your URL structure
     }
   }),
 ];
 
 // Display Author delete form on GET.
+// Display Author delete form on GET.
 exports.author_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Author delete GET");
+  const [author] = await getAuthorDetail(req.params.id);
+  const authorBooks = await getAuthorBooks(req.params.id);
+
+  console.log("author from controller: ", author, !!author);
+
+  if (!author) {
+    console.log("author === null FIRED ");
+    res.redirect("/catalog/authors");
+  }
+
+  res.render("author_delete", {
+    title: "Delete Author",
+    author: author,
+    author_books: authorBooks,
+  });
 });
 
 // Handle Author delete on POST.
 exports.author_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Author delete POST");
+  // Get details of author and all their books (in parallel)
+  const author = await getAuthorDetail(req.params.id);
+  const authorBooks = await getAuthorBooks(req.params.id);
+
+  if (authorBooks.length > 0) {
+    // Author has books. Render in same way as for GET route.
+    res.render("author_delete", {
+      title: "Delete Author",
+      author: author,
+      author_books: authorBooks,
+    });
+    return;
+  } else {
+    // Author has no books. Delete object and redirect to the list of authors.
+    console.log("req.body: ", req.body);
+    await deleteAuthorById(req.body.authorid);
+    res.redirect("/catalog/authors");
+  }
 });
 
 // Display Author update form on GET.
